@@ -11,7 +11,6 @@ export const useCharacterStore = defineStore('character', {
   state: () => ({
     activeCharacter: {},
     allCharacters: [],
-    // isLoaded: false,
   }),
 
   actions: {
@@ -159,7 +158,12 @@ export const useCharacterStore = defineStore('character', {
 
   getters: {
     isCreated(state) {
+      // Character is created enough to be viewable.
       return !!state.activeCharacter.race && !!state.activeCharacter.classData && !!state.activeCharacter.abilityScores;
-    }
+    },
+    isUserCharacter(state) {
+      // Active character is the property of the logged-in user.
+      return state.activeCharacter.userId === useAuthStore().authUser.uid
+    },
   }
 })

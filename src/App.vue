@@ -26,7 +26,7 @@ export default defineComponent({
     },
 
     endLoading() {
-      this.$q.loading.hide()
+      setTimeout(() => {this.$q.loading.hide()}, 100)
     },
 
   },
@@ -35,7 +35,7 @@ export default defineComponent({
   },
   mounted() {
     this.showLoading()
-    this.authStore.init().then(() => {setTimeout(() => {this.endLoading()}, 100)});
+    this.authStore.init().then(() => {this.endLoading()});
     // auth
     //   .onAuthStateChanged(user => {
     //     this.authStore.setUser(user ? new AuthUser(user) : null);

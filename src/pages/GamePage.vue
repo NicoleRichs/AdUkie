@@ -6,6 +6,7 @@ import {db} from "boot/firebase";
 import {useAuthStore} from "stores/auth-store";
 import Character from "src/models/Character";
 import { getActivePinia } from "pinia";
+import { useQuasar } from "quasar";
 
 export default defineComponent({
   name: "GamePage",
@@ -16,9 +17,19 @@ export default defineComponent({
       characterStore: useCharacterStore(),
       activeCharacter: {},
       permissionsDeniedDialog: false,
+      $q: useQuasar(),
     }
   },
   methods: {
+    showLoading () {
+      this.$q.loading.show({
+        message: 'Loading character. Hang on...',
+      })
+    },
+
+    endLoading() {
+      setTimeout(() => {this.$q.loading.hide()}, 100)
+    },
     // abilityModifiers () {
     //   const stats = this.activeCharacter.abilityScoresTotal;
     //
@@ -49,53 +60,26 @@ export default defineComponent({
     },
   },
   mounted() {
+    this.showLoading()
     this.activateCharacter(this.id);
+    this.endLoading()
   },
-  created() {
-    // if (!this.characterStore.isLoaded){
-    //   this.activateCharacter(this.id);
-    //   this.characterStore.isLoaded = true;
-    // }
-    // if (this.characterStore.activeCharacter.permission === false) {
-    //   this.permissionsDeniedDialog = true;
-    // }
-    // this.characterStore.activateCharacter(this.id);
-    // if (!!this.characterStore.activeCharacter) {
-    //   this.activeCharacter = this.characterStore.activeCharacter
-    // } else {
-    //   while (!!!this.characterStore.activeCharacter) {
-    //     this.activeCharacter = this.characterStore.activeCharacter
-    //   }
-    // }
-    // if (!!this.activePinia) {
-    //   this.characterStore.activateCharacter(this.id);
-    //   this.activeCharacter = this.characterStore.activeCharacter;
-    // }
-
-    // db
-    //   .doc(`characters/${this.id}`)
-    //   .onSnapshot((doc) => {
-    //     // this.activeCharacter = doc.data();
-    //     // this.activeCharacter.id = doc.id;
-    //     this.characterStore.activeCharacter = new Character(doc.id, doc.data());
-    //     this.activeCharacter = new Character(doc.id, doc.data());
-    //     this.abilityModifiers();
-    //
-    //     // console.log('active', this.activeCharacter)
-    //   });
-    // this.abilityModifiers();
-    // console.log(this.activePinia)
-  },
+  created() {},
 })
 </script>
 
 <template>
-  <div v-if="!!characterStore.activeCharacter.name">
+  <div >
     <div class="name full-width bg-grey-5">
+      <div class="characterAvatar">
+        <q-avatar v-if="!!characterStore.activeCharacter.avatarURL" square color="grey" text-color="white" size="88px">
+          <img :src="characterStore.activeCharacter.avatarURL" alt="Character Avatar"/>
+        </q-avatar>
+      </div>
       <div class="constrain q-mx-auto">
         <div class="name text-h3 relative-position">
           {{ characterStore.activeCharacter.name }}
-          <q-btn round flat class="absolute-right" icon="settings" size="16px" @click="redirectToCharacterSettings"><q-tooltip>Settings Page</q-tooltip></q-btn>
+          <q-btn v-if="characterStore.isUserCharacter" round flat class="absolute-right" icon="settings" size="16px" @click="redirectToCharacterSettings"><q-tooltip>Settings Page</q-tooltip></q-btn>
         </div>
         <div class="details text-h5 text-weight-light">
           {{ characterStore.activeCharacter.race }} | {{ characterStore.activeCharacter?.classData?.classLevelString }}
@@ -113,7 +97,7 @@ export default defineComponent({
       <!--        </div>-->
     </div>
   </div>
-  <div v-else class="loading text-h1 text-bold">Loading...</div>
+<!--  <div v-else class="loading text-h1 text-bold">Loading...</div>-->
 
   <!-- Permissions Denied Dialog -->
   <q-dialog v-model="permissionsDeniedDialog">
